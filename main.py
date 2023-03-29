@@ -82,7 +82,7 @@ def cmd_help(*__):
 
 @command_error_catcher
 def cmd_add(cmd_args: str, box):
-    if not bool(cmd_args):
+    if cmd_args == "":
         return "Argument required, use help for more information"
     args = cmd_args.split(' ')
     title = args[0].capitalize()
@@ -147,7 +147,7 @@ def cmd_change(cmd_args: str, box):
             return "Unknown field name"
         args.pop(0)
         value = " ".join(args)
-        if bool(value):
+        if value != "":
             for name in box.ab_fit_to_fit:
                 box.ab[name] = value
         else:
@@ -184,7 +184,7 @@ def cmd_delete(cmd_args: str, box):
                 box.ab[name].delete(title, value, field_no)
             break # field is found and deleted
     else:
-        if title == "Name" or not bool(title):
+        if title == "Name" or title == "":
             args.pop(0) # omit option title "Name"
 
         if len(args) == 0:
@@ -213,26 +213,17 @@ def cmd_exit(*args):
     return None
 
 
-# def report_fit_to_fit(box):
-#     report = ""
-#     for name in box.ab_fit_to_fit:
-#         if bool(report):
-#             report += os.linesep * 2
-#         report += box.ab.report(name, index=box.ab_fit.index(name)+1)
-#     return report
-
-
 def report_fit_to_fit(box):
     report = ""
     report_lines = 0
     report_in_the_page_middle = False
     for name in box.ab_fit_to_fit:
         report_plus = box.ab.report(name, index=box.ab_fit.index(name)+1)
-        report_plus_lines = report_plus.count(os.linesep)
+        report_plus_lines = report_plus.count(os.linesep) + 1
         # Empty line between records output
         report_plus_lines += int(report_in_the_page_middle) * 2
 
-        # Amount of terminal lines can change between iterations
+        # Amount of terminal lines can be changed between iterations
         terminal_lines = os.get_terminal_size().lines - 1
         if not report_in_the_page_middle \
                 or report_lines + report_plus_lines <= terminal_lines:
@@ -264,7 +255,7 @@ def cmd_search(cmd_args: str, box):
 
 @command_error_catcher
 def cmd_show(cmd_args: str, box):
-    if not bool(cmd_args):
+    if cmd_args == "":
         return report_fit_to_fit(box) 
     try:
         box.ab_fit = ()
@@ -389,7 +380,7 @@ def main() -> None:
                 f"((C> ", "Ctrl+C")
             if cmd_raw == "Ctrl+C":
                 # Is pressed Ctrl+C or Ctrl+D
-                if not bool(attempt) and box.ab.is_modified:
+                if attempt == 0 and box.ab.is_modified:
                     print(os.linesep + "Addressbook was modified: use "
                           "'exit' or '.' to save changes and exit." +
                           os.linesep + "Or press Ctrl+C again to exit "
@@ -401,7 +392,7 @@ def main() -> None:
                 break
 
         cmd_raw = normalize(cmd_raw)
-        if not bool(cmd_raw):
+        if cmd_raw == "":
             # Empty string: nothing to do
             continue
         (cmd, cmd_args) = parse(cmd_raw)
@@ -428,11 +419,11 @@ def main() -> None:
                 # Nothing to print
                 pass
         elif isinstance(result, str):
-            if bool(result):
+            if result != "":
                 print(result)
 
         if handler is cmd_exit:
-            dump_addressbook(box)                
+            dump_addressbook(box)
             break
 
 

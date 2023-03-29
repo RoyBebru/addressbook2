@@ -60,9 +60,9 @@ class Record:
 
     def change(self, title: str, value: str, field_no=1):
         if isinstance(title, str):
-            if not bool(title):
+            if title == "":
                 raise RecordException("to change field title is required")
-            if not bool(value):
+            if value == "":
                 # Title is present but value is absent
                 raise RecordException("to change a new parameter is required")
             fields = list(self.fields)
@@ -77,13 +77,13 @@ class Record:
 
     def delete(self, title="", value="", field_no=1):
         if isinstance(title, str):
-            if not bool(title):
+            if title == "":
                 # Field title is absent: remove all field with value,
                 # field_no is ignored 
                 self.fields = tuple(field for field in self.fields
                                     if field != value)
                 return
-            if not bool(value):
+            if value == "":
                 # Title is present but value is absent: removing
                 # one field with field_no (if such is present)
                 fields = ()

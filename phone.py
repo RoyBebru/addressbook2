@@ -26,7 +26,7 @@ class Phone(Field):
 
     def __init__(self, phone=""):
         super().__init__(value=phone, title="Phone", order=30)
-        if bool(phone):
+        if phone != "":
             self.value = phone # to validate non epmpty phone number
 
     @property
@@ -36,28 +36,25 @@ class Phone(Field):
     @value.setter
     def value(self, phone):
         phone = self.normalize(phone)
-        error_message = self.verify(phone)
-        if bool(error_message):
-            # Exception in the constructor does not create object
-            raise PhoneException(error_message)
+        self.verify(phone)
         # Phone number is proven and can be stored
         self._value = phone
 
-    def verify(self, phone: str) -> bool:
+    def verify(self, phone: str):
         """Check phone format"""
         m = Phone.pattern_phone_number.search(phone)
         if not bool(m):
-            return f"incorrect number '{phone}'"
+            PhoneException(f"incorrect number '{phone}'")
         if m.start() != 0:
-            return f"extra symbol(s) '{phone[:m.start()]}' in the start"
+            PhoneException(f"extra symbol(s) '{phone[:m.start()]}' in the start")
         if m.end() != len(phone):
-            return f"extra symbol(s) '{phone[m.end():]}' in the end"
-        if sum(map(lambda x: bool(x.isdigit()), phone)) < 5:
-            return f"number '{phone}' is very short to be correct"
+            PhoneException(f"extra symbol(s) '{phone[m.end():]}' in the end")
+        if sum(map(lambda x: x.isdigit(), phone)) < 5:
+            PhoneException(f"number '{phone}' is very short to be correct")
         # Phone number is proven
-        return ""
+        return
 
-    def normalize(self, phone) -> str:
+    def normalize(self, phone: str) -> str:
         # Removing start/end spaces and change many spaces with one
         phone = " ".join(str(phone).split())
         phone = phone.replace(" - ", "-").replace(" -", "-").replace("- ", "-")

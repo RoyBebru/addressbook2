@@ -14,7 +14,7 @@ class Comment(Field):
 
     def __init__(self, comment=""):
         super().__init__(value=comment, title="Comment", order=95)
-        if bool(comment):
+        if comment != "":
             self.value = comment # to validate non empty comment
 
     @property

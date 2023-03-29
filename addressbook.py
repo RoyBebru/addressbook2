@@ -51,7 +51,10 @@ class AddressBook(UserDict):
             return tuple((str(name), record.as_tuple_of_tuples())
                          for (name, record) in self.data.items())
         elif isinstance(key, Name):
-            return self.data[key]
+            try:
+                return self.data[key]
+            except KeyError:
+                return None
         elif isinstance(key, str):
             return tuple(name for name in filter(
                 lambda n: n.is_substr(key), self.keys()))
@@ -125,7 +128,7 @@ class AddressBook(UserDict):
     def keys(self):
         return tuple(super().keys())
 
-    def report(self, names = None, index=1):
+    def report(self, names = None, index=1) -> str:
         if names is None:
             names = list(self.data.keys())
         elif isinstance(names, Name):

@@ -288,3 +288,32 @@ n
 sh
 n
 sh
+add Bill
+add bill
+sh
+add Bill
+sh
+see Bill
+sh
+all
+sh
+see #99
+show Bill
+add phone 1111111111
+sh
+all
+sh
+add Jill
+sh
+sh Jill
+sh
+add Bill
+sh
+all
+sh
+n
+add Bill
+add phone 1111111
+add Bill
+add Jill
+sh

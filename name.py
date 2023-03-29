@@ -29,9 +29,9 @@ class Name(Field):
                         + r"(?:\s" + pattern_name + r")?"
                         + r")?", re.IGNORECASE) # up to 3 word name pattern
 
-    def __init__(self, name):
+    def __init__(self, name: str):
         super().__init__(value=name, title="Name", order=10)
-        if bool(name):
+        if name != "":
             self.value = name # to validate non empty name
 
     @property
@@ -45,7 +45,7 @@ class Name(Field):
         # Name is proven and can be stored
         self._value = name
 
-    def verify(self, name: str) -> bool:
+    def verify(self, name: str):
         """Check name format"""
         m = Name.pattern_name.search(name)
         if not bool(m):
@@ -55,7 +55,7 @@ class Name(Field):
         if m.end() != len(name):
             NameException(f"extra symbol(s) '{name[m.start():]}' in the end")
         # Name is proven
-        return None # name is verified
+        return
 
     def normalize(self, name) -> str:
         # Removing start/end spaces and change many spaces with one

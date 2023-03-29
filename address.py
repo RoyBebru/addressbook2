@@ -14,7 +14,7 @@ class Address(Field):
 
     def __init__(self, address=""):
         super().__init__(value=address, title="Address", order=50)
-        if bool(address):
+        if address != "":
             self.value = address # to validate non empty address
 
     @property
