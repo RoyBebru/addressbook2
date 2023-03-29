@@ -223,7 +223,6 @@ def cmd_exit(*args):
 
 
 def report_fit_to_fit(box):
-    terminal_lines = os.get_terminal_size().lines - 1
     report = ""
     report_lines = 0
     report_in_the_page_middle = False
@@ -233,6 +232,8 @@ def report_fit_to_fit(box):
         # Empty line between records output
         report_plus_lines += int(report_in_the_page_middle) * 2
 
+        # Amount of terminal lines can change between iterations
+        terminal_lines = os.get_terminal_size().lines - 1
         if not report_in_the_page_middle \
                 or report_lines + report_plus_lines <= terminal_lines:
             # Add empty line between records output
@@ -415,9 +416,11 @@ def main() -> None:
                 prev_text = next(result)
                 for text in result:
                     print(prev_text)
-                    ans = input_or_default("Next? (Y|n) ", "no").strip().lower()
+                    ans = input_or_default("Next? (Y|n) ", "ctrl+c").strip().lower()
                     if not(ans == "" or ans.startswith('y')):
-                        break
+                        if ans == "ctrl+c":
+                            print("")
+                        break   
                     prev_text = text
                 else:
                     print(prev_text)
