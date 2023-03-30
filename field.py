@@ -10,7 +10,7 @@ License: MIT
 class Field:
 
     def __init__(self, value = "", title="", order=0, is_unique=False):
-        # Field title, such as "Phone", "E-mail", "Name", etc
+        # Field title, such as "Phone", "E-mail", "Birthday", etc
         self.title = title
         # Field to sort
         self.order = order
@@ -41,9 +41,9 @@ class Field:
     def report(self):
         return self.value
 
+
 if __name__ == "__main__":
     f1 = Field("data", "Comment", 90)
     f1.value = "Datum"
     f1.order = 85
     print(f1, f1.title, f1.order)
-

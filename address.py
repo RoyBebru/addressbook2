@@ -10,6 +10,12 @@ License: MIT
 from field import Field
 
 
+def normalize_address(address: str) -> str:
+    # Removing start/end spaces and change many spaces with one
+    address = " ".join(str(address).split())
+    return address
+
+
 class Address(Field):
 
     def __init__(self, address=""):
@@ -23,14 +29,9 @@ class Address(Field):
 
     @value.setter
     def value(self, address):
-        address = self.normalize(address)
-        # old_address = self._value
+        address = normalize_address(address)
         self._value = address
 
-    def normalize(self, address) -> str:
-        # Removing start/end spaces and change many spaces with one
-        address = " ".join(str(address).split())
-        return address
 
 if __name__ == "__main__":
     p1 = Address("samjdmsna asjdj as djashgdj                 as")

@@ -8,9 +8,8 @@ License: MIT
 """
 
 
-from addressbook import AddressBook, AddressBookException
+from addressbook import AddressBook, AddressBookException, is_similar
 from birthday import BirthdayException
-from name import Name, NameException
 from phone import Phone, PhoneException
 from record import Record, RecordException
 
@@ -39,8 +38,6 @@ def command_error_catcher(cmd_hundler):
             return f"AddressBook Error: {e.args[0]}"
         except RecordException as e:
             return f"Record Error: {e.args[0]}"
-        except NameException as e:
-            return f"Name Error: {e.args[0]}"
         except PhoneException as e:
             return f"Phone Error: {e.args[0]}"
         except BirthdayException as e:
@@ -97,10 +94,9 @@ def cmd_add(cmd_args: str, box):
         if title == "Name":
             args.pop(0) # omit option title "Name"
         # Create new record
-        value = ' '.join(args)
-        name = Name(value)
-        if isinstance(box.ab[name], Record):
-            return f"Error: name '{' '.join(args)}' already exists" 
+        name = ' '.join(args)
+        if box.ab.is_any_equal_by_combination(name):
+            return f"Error: name '{' '.join(args)}' already exists"
         box.ab[name] = ()
         box.ab_fit += (name,)
         box.ab_fit_to_fit = (name,)
@@ -110,7 +106,7 @@ def cmd_add(cmd_args: str, box):
 
 # @command_error_catcher
 def cmd_all(cmd_args: str, box):
-    box.ab_fit = box.ab.keys()
+    box.ab_fit = tuple(box.ab.keys())
     box.ab_fit_to_fit = box.ab_fit
     return None
 
@@ -120,7 +116,7 @@ def cmd_change(cmd_args: str, box):
     args = cmd_args.split(' ') # [''] == ''.split(' ')
     title = args[0].capitalize()
 
-    # Checking for field index
+    # Looking field index
     for ix in range(len(title)-1,-1,-1):
         if not title[ix].isdigit():
             if ix == len(title)-1:
@@ -136,22 +132,28 @@ def cmd_change(cmd_args: str, box):
 
     for field_title in Record.known_field_titles.keys():
         if title == field_title:
-            # Field title is present: change field value 
+            # Field title is present: change field value
             args.pop(0)
             value = " ".join(args)
             for name in box.ab_fit_to_fit:
                 box.ab[name].change(title, value, field_no)
             break # field is found and changed
     else:
-        if title != "Name":
-            return "Unknown field name"
-        args.pop(0)
+        if title == "Name":
+            args.pop(0)
         value = " ".join(args)
         if value != "":
-            for name in box.ab_fit_to_fit:
-                box.ab[name] = value
+            if len(box.ab_fit_to_fit) != 1:
+                return "Change error: select only one record to rename"
+            key = box.ab_fit_to_fit[0]
+            value = box.ab.rename(key, value)
+            # Delete old name from MATCH list
+            box.ab_fit = tuple(filter(lambda e: e != key, box.ab_fit))
+            # Add new name
+            box.ab_fit += (value,)
+            box.ab_fit_to_fit = (value,)
         else:
-            return "Change error: Name field parameter is required"
+            return "Change error: name is required"
     box.ab.is_modified = True
     return
 
@@ -161,7 +163,7 @@ def cmd_delete(cmd_args: str, box):
     args = cmd_args.split(' ') # [''] == ''.split(' ')
     title = args[0].capitalize()
 
-    # Checking for field index
+    # Looking field index
     for ix in range(len(title)-1,-1,-1):
         if not title[ix].isdigit():
             if ix == len(title)-1:
@@ -189,18 +191,17 @@ def cmd_delete(cmd_args: str, box):
 
         if len(args) == 0:
             # Delete all record(s) in ab_fit
+            for name in box.ab_fit_to_fit:
+                box.ab.pop(name, None)
             box.ab_fit = tuple(name for name in box.ab_fit
                             if name not in box.ab_fit_to_fit)
-            for name in box.ab_fit_to_fit:
-                box.ab.pop(name)
         else:
             value = " ".join(args)
-            # Delete record(s) with Name == value
+            # Delete record(s) with Name similar to value
             box.ab_fit = tuple(name for name in box.ab_fit
-                            if name not in box.ab_fit_to_fit \
-                                or not name.is_substr(value))
+                    if name not in box.ab_fit_to_fit or not is_similar(name, value))
             for name in box.ab_fit_to_fit:
-                if name.is_substr(value):
+                if is_similar(name, value):
                     box.ab.pop(name)
         box.ab_fit_to_fit = box.ab_fit
     box.ab.is_modified = True
@@ -218,13 +219,13 @@ def report_fit_to_fit(box):
     report_lines = 0
     report_in_the_page_middle = False
     for name in box.ab_fit_to_fit:
-        report_plus = box.ab.report(name, index=box.ab_fit.index(name)+1)
+        report_plus = box.ab.report(name, index=list(box.ab_fit).index(name)+1)
         report_plus_lines = report_plus.count(os.linesep) + 1
         # Empty line between records output
-        report_plus_lines += int(report_in_the_page_middle) * 2
+        report_plus_lines += int(report_in_the_page_middle)
 
         # Amount of terminal lines can be changed between iterations
-        terminal_lines = os.get_terminal_size().lines - 1
+        terminal_lines = os.get_terminal_size().lines - 2
         if not report_in_the_page_middle \
                 or report_lines + report_plus_lines <= terminal_lines:
             # Add empty line between records output
@@ -256,17 +257,18 @@ def cmd_search(cmd_args: str, box):
 @command_error_catcher
 def cmd_show(cmd_args: str, box):
     if cmd_args == "":
-        return report_fit_to_fit(box) 
+        return report_fit_to_fit(box)
     try:
         box.ab_fit = ()
         ph = Phone(cmd_args)
         for name in box.ab.keys():
             for field in box.ab[name].fields:
-                if isinstance(field, Phone) and field == ph:
+                if isinstance(field, Phone) and field.is_similar(ph):
                     box.ab_fit += (name,)
                     break
     except PhoneException:
-        box.ab_fit = box.ab[cmd_args]
+        # cmd_args is not Phone
+        box.ab_fit = box.ab.get_similar(cmd_args)
     box.ab_fit_to_fit = box.ab_fit
     return box.ab.report(box.ab_fit)
 
@@ -310,7 +312,7 @@ HANDLERS = {
                          re.IGNORECASE),
     cmd_search: re.compile(r"^(?:se|se[ea]|sear|searc|search|"
                            r"ш|шу|шук|шука|шукай|шукат|шукати)$",
-                           re.IGNORECASE), 
+                           re.IGNORECASE),
     cmd_show: re.compile(r"^(?:sh|sho|show|"
                          r"п|по|пок|пока|пока[зж]|покажи|показа|показат|показати|"
                          r"ди|див|диви|дивис|дивися|дивит|дивити|дивитис|дивитис[яь])$",
@@ -330,7 +332,7 @@ def dump_addressbook(box):
         return
     try:
         with open(ADDRESSBOOK_PATHFILE, "w") as fh:
-            fh.write(json.dumps(box.ab.JSON_helper(), 
+            fh.write(json.dumps(box.ab.JSON_helper(),
                                 indent=2,
                                 ensure_ascii=False))
     except PermissionError:
@@ -347,7 +349,7 @@ def load_addressbook():
         return ()
     except PermissionError:
         return ()
-    
+
     ab_as_tuple = ()
     for (name, record_list_of_list) in ab.items():
         ab_as_tuple += ( ((name,) + tuple((pair[0], pair[1])
@@ -366,18 +368,21 @@ def main() -> None:
     # Function is used as convenient container for associated objects
     def box(): pass
     box.ab = AddressBook(load_addressbook())
-    box.ab_fit = box.ab.keys()
+    box.ab_fit = tuple(box.ab.keys())
     box.ab_fit_to_fit = box.ab_fit
     print("Use ? for more information")
 
     while True:
 
         for attempt in range(2):
+            mflag = "C"
+            if box.ab.is_modified:
+                mflag = '@'
             cmd_raw = input_or_default(
                 f"({len(box.ab)}" # total records
                 f"({len(box.ab_fit)}" # records in MATCH SET
                 f"({len(box.ab_fit_to_fit)}" # records in MATCH SUBSET
-                f"((C> ", "Ctrl+C")
+                f"(({mflag}> ", "Ctrl+C")
             if cmd_raw == "Ctrl+C":
                 # Is pressed Ctrl+C or Ctrl+D
                 if attempt == 0 and box.ab.is_modified:
@@ -411,7 +416,7 @@ def main() -> None:
                     if not(ans == "" or ans.startswith('y')):
                         if ans == "ctrl+c":
                             print("")
-                        break   
+                        break
                     prev_text = text
                 else:
                     print(prev_text)

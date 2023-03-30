@@ -5,7 +5,7 @@ import json
 from faker import Faker
 from random import randint
 
-RECORDS_NUM = 100
+RECORDS_NUM = 111
 
 fake = Faker("uk_UA")
 ab = {}
@@ -18,7 +18,8 @@ for __ in range(RECORDS_NUM):
             datetime.fromordinal(randint(719528, 732677)).strftime(r"%d.%m.%Y")), )
     if randint(0,2) > 1:
         record += ( ("Address", fake.address()), )
-    ab[fake.name()] = record
+    name = fake.name().replace("пан ", "").replace("пані ", "")
+    ab[name] = record
 
 with open("main.abo", "w") as fh:
     fh.write(json.dumps(ab, indent=2, ensure_ascii=False))

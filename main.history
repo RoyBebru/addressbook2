@@ -317,3 +317,109 @@ add phone 1111111
 add Bill
 add Jill
 sh
+n
+show Михайло Ярош
+sh
+n
+add Bill
+sh
+add phone 112121212
+sh
+add phone 232323232
+sh
+add comment Yahoo
+sh
+add address Каторжинська 51, кв.33
+as
+sh
+add birthday 11.11.11
+sh
+change phone 77777777
+sh
+change phone2 333333333
+sh
+change birthday 11.10.09
+sh
+change birthday 11.09.2007
+sh
+del address
+sh
+del phone 3333
+sh
+del phone 77777777
+sh
+add phone 77771
+sh
+del phone02
+sh
+del
+sh
+n
+sh юк
+sh
+del
+sh юк
+d
+sh юк
+d
+all
+sh
+d
+sh юк
+d
+sh пан
+sh юк
+all
+see -
+sh
+add Jill
+add address asdjhaskda               asjfhd asjhs dffffffffffsajd      ashdfh     
+sh
+del jil
+sh
+add Jill
+ch Jill Quile
+ch name Jill Quile
+add Jill
+ch name Jill Quile
+add Jill
+ch name Jill Quile
+add Jill
+ch name Jill Quile
+sh
+ch nnnn n nnnn
+ch name Jill Quile
+add Jill
+ch  Quile Ell
+sh
+add address sakdhadkajhskdas
+sh
+change address Комарова 5, кв.77
+sh
+d
+sh
+?
+add Jill Ferro
+add Birthady 01.04.1999
+add Birthday 01.04.1999
+sh
+add Birthday 03.04.1999
+sh
+add Birthday 04.04.1999
+sh
+add Jill Ferro
+add Birthday 04.04.1999
+add Birthday 03.04.1999
+del birthday
+add Birthday 03.04.1999
+sh
+add comment aldk';askd;lad;lkada
+add commrnt adkaskd;lka;dka;s
+add comment adkaskd;lka;dka;s
+sh
+add phone 123971273
+sh
+add phone 234214141
+sh
+.
+sh jill

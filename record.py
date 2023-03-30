@@ -54,7 +54,8 @@ class Record:
                         is_present = True
                         break
                 if is_present: # is present field like new_field?
-                    continue # do not create duplicate of unique field
+                    raise RecordException(f"field {field.title} already "
+                                          f"exist and must be unique")
             # Add new field to tuple
             self.fields += (new_field,)
 
@@ -79,7 +80,7 @@ class Record:
         if isinstance(title, str):
             if title == "":
                 # Field title is absent: remove all field with value,
-                # field_no is ignored 
+                # field_no is ignored
                 self.fields = tuple(field for field in self.fields
                                     if field != value)
                 return

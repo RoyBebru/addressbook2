@@ -12,6 +12,17 @@ import re
 from field import Field
 
 
+def normalize_phone(phone: str) -> str:
+    # Removing start/end spaces and change many spaces with one
+    phone = " ".join(str(phone).split())
+    phone = phone.replace(" - ", "-").replace(" -", "-").replace("- ", "-")
+    return phone
+
+
+def get_digits_from_str(text: str) -> str:
+    return "".join(filter(str.isdigit, text))
+
+
 class PhoneException(Exception):
     def __init__(self, *args, **kwargs):
         # Call parent constructor
@@ -35,7 +46,7 @@ class Phone(Field):
 
     @value.setter
     def value(self, phone):
-        phone = self.normalize(phone)
+        phone = normalize_phone(phone)
         self.verify(phone)
         # Phone number is proven and can be stored
         self._value = phone
@@ -44,34 +55,31 @@ class Phone(Field):
         """Check phone format"""
         m = Phone.pattern_phone_number.search(phone)
         if not bool(m):
-            PhoneException(f"incorrect number '{phone}'")
+            raise PhoneException(f"incorrect number '{phone}'")
         if m.start() != 0:
-            PhoneException(f"extra symbol(s) '{phone[:m.start()]}' in the start")
+            raise PhoneException(f"extra symbol(s) '{phone[:m.start()]}' in the start")
         if m.end() != len(phone):
-            PhoneException(f"extra symbol(s) '{phone[m.end():]}' in the end")
+            raise PhoneException(f"extra symbol(s) '{phone[m.end():]}' in the end")
         if sum(map(lambda x: x.isdigit(), phone)) < 5:
-            PhoneException(f"number '{phone}' is very short to be correct")
+            raise PhoneException(f"number '{phone}' is very short to be correct")
         # Phone number is proven
         return
 
-    def normalize(self, phone: str) -> str:
-        # Removing start/end spaces and change many spaces with one
-        phone = " ".join(str(phone).split())
-        phone = phone.replace(" - ", "-").replace(" -", "-").replace("- ", "-")
-        return phone
-
-    def _get_digits_from_str(self, text: str) -> str:
-        return "".join(filter(str.isdigit, text))
-
     def __eq__(self, phone):
-        if self._get_digits_from_str(str(self)) \
-                == self._get_digits_from_str(str(phone)):
+        if get_digits_from_str(str(self)) \
+                == get_digits_from_str(str(phone)):
             return True
         return False
 
     def __ne__(self, phone):
         return not self == phone
 
+    def is_similar(self, phone):
+        phone1 = get_digits_from_str(str(self))
+        phone2 = get_digits_from_str(str(phone))
+        if phone1.find(phone2) != -1 or phone2.find(phone1) != -1:
+            return True
+        return False
 
 if __name__ == "__main__":
     p1 = Phone("777-77-77")
@@ -83,3 +91,8 @@ if __name__ == "__main__":
         print("EQ")
     p1.value = "999-99-00"
     print(p1)
+    if p1.is_similar("+99(999)19-900"):
+        print(f"{str(p1)} is similar")
+    else:
+        print(f"{str(p1)} is NOT similar")
+    # p1 = Phone("Roy Bebru")
