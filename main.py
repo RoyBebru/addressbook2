@@ -345,9 +345,7 @@ def load_addressbook():
     try:
         with open(ADDRESSBOOK_PATHFILE, "r") as fh:
             ab = json.loads(fh.read())
-    except FileNotFoundError:
-        return ()
-    except PermissionError:
+    except (FileNotFoundError, PermissionError):
         return ()
 
     ab_as_tuple = ()
@@ -428,7 +426,8 @@ def main() -> None:
                 print(result)
 
         if handler is cmd_exit:
-            dump_addressbook(box)
+            if box.ab.is_modified:
+                dump_addressbook(box)
             break
 
 
