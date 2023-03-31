@@ -91,7 +91,7 @@ class Record:
                 for field in self.sort_fields():
                     if field.title == title:
                         field_no -= 1
-                        if field_no <= 0:
+                        if field_no == 0:
                             del field
                             continue # forget field
                     fields += (field,)
