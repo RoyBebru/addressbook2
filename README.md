@@ -65,7 +65,7 @@ Application support the following commands:
        Phone: +38 037 222-69-92
     (112(3(2((C> 
     ```
-    **MATCH set** defines numbering of records in form "**#<num>**". It is convinient to use numbering in the **search** regular expression. For example,
+    **MATCH set** defines numbering of records in form "**\#\<num\>**". It is convinient to use numbering in the **search** regular expression. For example,
     ```
     (112(3(2((C> search #3
     #3 Name: Мілена Щириця
