@@ -35,7 +35,45 @@ Application support the following commands:
     - name,
     - part of name,
     - phone number,
-    - phone number part.
+    - part of phone number.
+  - **search**|**see**|**шукати**|**шукай**|**пошук**|**знайти**|**знайди** - select records in **MATCH set** to **MATCH subset** by simple regular expression with metasymbols like it is for files
+    - '\*' matches any zero or more characters,
+    - '\?' matches any one character,
+    - '[string]' matches exactly one character that is a member of the string 'string'.
+    For example:
+    ```
+    (112(112(112((C> show лен
+    #1 Name: Людмила Цибуленко
+       Phone: 729-72-47
+       Birthday: 08.07.1988 (+99 days left)
+
+    #2 Name: Христина Вакуленко
+       Phone: +38 037 907-94-48
+
+    #3 Name: Мілена Щириця
+       Phone: 086 446 24 04
+       Phone: 008-39-47
+       Phone: +38 037 222-69-92
+    (112(3(3((C> search [29]?47
+    #1 Name: Людмила Цибуленко
+       Phone: 729-72-47
+       Birthday: 08.07.1988 (+99 days left)
+
+    #3 Name: Мілена Щириця
+       Phone: 086 446 24 04
+       Phone: 008-39-47
+       Phone: +38 037 222-69-92
+    (112(3(2((C> 
+    ```
+    **MATCH set** defines numbering of records in form "**#<num>**". It is convinient to use numbering in the **search** regular expression. For example,
+    ```
+    (112(3(2((C> search #3
+    #3 Name: Мілена Щириця
+       Phone: 086 446 24 04
+       Phone: 008-39-47
+       Phone: +38 037 222-69-92
+    (112(3(1((C> 
+    ```
   - **add**|**додати**|**додай** - add to address book new record or field:
     ```
     (93(93(93((C> add Мар'яна Архипівна Вандер-Вілька
@@ -54,7 +92,7 @@ Application support the following commands:
       - **address**: any string without requirements. Any record can have some **phone** fields or none.
       - **birthday**: birthday in format DD.MM.YY or DDD.MM.YYYYY. If it is present the days that left to near birthday will be displayed in output. Field can be absent or present not more than 1 time.  
       - **comment**: any string without requirements. Any record can have some **phone** fields or none.
-    - **delete**|**видалити** - deletes all records in **MATCH subset** or field. For example:
+    - **delete**|**видалити** - deletes all records in **MATCH subset** or fields within these records. For example:
     Delete  **MATCH set** records:
     ```
     (94(94(1((C> del
@@ -112,6 +150,8 @@ Application support the following commands:
        Address: площа Окружна, буд. 32, Почаїв, 68326
     (112(1(1((@> 
     ```
+    It is possible to change fields within many records in **MATCH subset**.
+    
     To change not first field in record can be used number in the end of field name. So, to change 2nd field "Phone" can be used command "change phone2":
     ```
     (112(2(2((C> sh лен
@@ -141,4 +181,6 @@ Application support the following commands:
        Phone: +38 037 222-69-92
     (112(3(3((@> 
     ```
-    
+  - **\?**|**help**|**допоможи**|**допомога** - prints short instruction
+  - **.**|**exit**|**quit**|**bye**|**вийди**|**вийти**|**вихід** - save modifications and exit from application.
+  - **CTRL+C** - exit from program without saving modification.
