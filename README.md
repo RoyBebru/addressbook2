@@ -182,5 +182,5 @@ Application support the following commands:
     (112(3(3((@> 
     ```
   - **\?**|**help**|**допоможи**|**допомога** - prints short instruction
-  - **.**|**exit**|**quit**|**bye**|**вийди**|**вийти**|**вихід** - save modifications and exit from application.
-  - **CTRL+C** - exit from program without saving modification.
+  - **.**|**exit**|**quit**|**bye**|**вийди**|**вийти**|**вихід** - save modifications and exit from application
+  - **CTRL+C** - exit from program without saving modification
